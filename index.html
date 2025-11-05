@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nashville Food Resources</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.15) 0px, transparent 50%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            line-height: 1.7;
+            color: #1e293b;
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Filter System Styles */
+        .filter-wrapper {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            margin-bottom: 32px;
+        }
+
+        .filter-container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filter-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .filter-icon {
+            font-size: 24px;
+        }
+
+        .filter-title {
+            color: #1e293b;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .filter-input-wrapper {
+            position: relative;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 16px 48px 16px 20px;
+            font-size: 1em;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .filter-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-clear:hover {
+            background: #dc2626;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .filter-clear.visible {
+            display: flex;
+        }
+
+        .filter-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid #e2e8f0;
+            font-size: 0.9em;
+            color: #64748b;
+        }
+
+        .filter-count {
+            font-weight: 600;
+            color: #6366f1;
+        }
+
+        .filter-total {
+            color: #94a3b8;
+        }
+
+        /* Highlight matching text */
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* Hidden state for filtered items */
+        .filtered-hidden {
+            display: none !important;
+        }
+
+        .no-results {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            margin-bottom: 32px;
+            display: none;
+        }
+
+        .no-results.visible {
+            display: block;
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .no-results-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .no-results-text {
+            color: #64748b;
+            font-size: 1em;
+        }
+
+        header {
+            text-align: center;
+            padding-bottom: 40px;
+            border-bottom: 3px solid;
+            border-image: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #3b82f6 100%) 1;
+            margin-bottom: 48px;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .intro {
+            color: #475569;
+            font-size: 1.25em;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 32px;
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .section-title {
+            color: #1e293b;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid;
+            border-image: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #3b82f6 100%) 1;
+        }
+
+        .subsection {
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 3px solid #e2e8f0;
+            margin-bottom: 32px;
+        }
+
+        .subsection-title {
+            color: #475569;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .org-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .org-card:hover {
+            transform: translateX(4px);
+            border-color: #c7d2fe;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+        }
+
+        .org-title {
+            color: #1e293b;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .org-details p {
+            margin-bottom: 8px;
+            color: #475569;
+        }
+
+        /* Contact info styling */
+        .address, .phone, .email, .hours, .requirement {
+            font-size: 0.95em;
+            padding: 8px 0;
+        }
+
+        .address a, .phone a, .email a {
+            color: #6366f1;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .address a:hover, .phone a:hover, .email a:hover {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+
+        .inline-address {
+            color: #6366f1;
+            text-decoration: none;
+            border-bottom: 1px dotted #6366f1;
+            transition: all 0.2s ease;
+        }
+
+        .inline-address:hover {
+            color: #4f46e5;
+            border-bottom-style: solid;
+        }
+
+        .hours {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .requirement {
+            color: #dc2626;
+            font-weight: 500;
+        }
+
+        #loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            border-radius: 16px;
+            padding: 32px;
+            color: #dc2626;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .intro {
+                font-size: 1em;
+                padding: 20px;
+            }
+
+            .filter-container {
+                padding: 20px;
+            }
+
+            .filter-title {
+                font-size: 1.2em;
+            }
+
+            .filter-input {
+                padding: 14px 44px 14px 16px;
+            }
+
+            .section {
+                padding: 28px 20px;
+                border-radius: 16px;
+                margin-bottom: 20px;
+            }
+
+            .section-title {
+                font-size: 1.6em;
+            }
+
+            .org-card {
+                padding: 20px;
+            }
+
+            .org-title {
+                font-size: 1.2em;
+            }
+
+            .subsection {
+                padding-left: 12px;
+                margin-left: 12px;
+            }
+
+            .subsection-title {
+                font-size: 1.15em;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 48px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 60px;
+            font-size: 1.05em;
+        }
+
+        footer small {
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 
+                0 10px 30px rgba(99, 102, 241, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            visibility: hidden;
+            font-size: 24px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 
+                0 20px 50px rgba(99, 102, 241, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Smooth scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 6px;
+            border: 2px solid #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading">
+            <div class="spinner"></div>
+            Loading Nashville Food Resources...
+        </div>
+        <div id="content"></div>
+    </div>
+
+    <div class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</div>
+
+    <script>
+        const docUrl = 'https://docs.google.com/document/d/e/2PACX-1vSLuk5RqGn8hPtbP7cwn-ZXhnD0YcXAKXA_HLSBNyD0kb2-xZFLYTmCQ8lU904GMBUmnZIf3W86S324/pub';
+        let allSections = [];
+        let totalResourceCount = 0;
+        
+        async function loadContent() {
+            try {
+                const response = await fetch(docUrl);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch document');
+                }
+                const html = await response.text();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Remove styles and scripts
+                doc.querySelectorAll('style, script').forEach(el => el.remove());
+                
+                const contentDiv = doc.querySelector('#contents') || doc.body;
+                
+                // Get all paragraphs
+                const paragraphs = Array.from(contentDiv.querySelectorAll('p'))
+                    .map(p => ({
+                        text: p.textContent.trim(),
+                        html: p.innerHTML,
+                        element: p
+                    }))
+                    .filter(p => p.text.length > 0);
+                
+                // Process into sections
+                allSections = organizeSections(paragraphs);
+                
+                // Count total resources
+                totalResourceCount = countTotalResources(allSections);
+                
+                // Build HTML
+                let contentHTML = '<header><h1>Nashville Area Food Resources</h1><p class="intro">Community-compiled resource guide for food assistance in Nashville & Middle Tennessee</p></header>';
+                
+                // Generate Filter System
+                contentHTML += buildFilterSystem();
+                
+                // No results message
+                contentHTML += '<div class="no-results" id="noResults"><div class="no-results-icon">🔍</div><div class="no-results-title">No resources found</div><div class="no-results-text">Try adjusting your search terms</div></div>';
+                
+                // Build sections
+                contentHTML += '<div id="sectionsContainer">';
+                for (let section of allSections) {
+                    contentHTML += buildSection(section);
+                }
+                contentHTML += '</div>';
+                
+                contentHTML += '<footer>Community resource compiled with love for Nashville ❤️<br><small>Updated live from Google Docs</small></footer>';
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').innerHTML = contentHTML;
+                
+                // Initialize filter functionality
+                initFilter();
+                
+                window.addEventListener('scroll', toggleBackToTop);
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <strong>Error loading content:</strong> ${error.message}
+                        <br><br>
+                        <a href="${docUrl}" target="_blank">View document directly</a>
+                    </div>
+                `;
+            }
+        }
+
+        function buildFilterSystem() {
+            let html = '<div class="filter-wrapper">';
+            html += '<div class="filter-container">';
+            html += '<div class="filter-header">';
+            html += '<span class="filter-icon">🔍</span>';
+            html += '<h2 class="filter-title">Filter Resources</h2>';
+            html += '</div>';
+            html += '<div class="filter-input-wrapper">';
+            html += '<input type="text" id="filterInput" class="filter-input" placeholder="Search by organization, location, or service type..." autocomplete="off" aria-label="Filter resources">';
+            html += '<button class="filter-clear" id="filterClear" onclick="clearFilter()" aria-label="Clear filter">×</button>';
+            html += '</div>';
+            html += '<div class="filter-stats">';
+            html += '<span>Showing <span class="filter-count" id="filterCount">' + totalResourceCount + '</span> of <span class="filter-total">' + totalResourceCount + '</span> resources</span>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            return html;
+        }
+
+        function initFilter() {
+            const filterInput = document.getElementById('filterInput');
+            const filterClear = document.getElementById('filterClear');
+            
+            if (!filterInput) return;
+            
+            filterInput.addEventListener('input', (e) => {
+                const query = e.target.value;
+                applyFilter(query);
+                
+                // Show/hide clear button
+                if (query.length > 0) {
+                    filterClear.classList.add('visible');
+                } else {
+                    filterClear.classList.remove('visible');
+                }
+            });
+            
+            // Allow Enter key to trigger filter
+            filterInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        function clearFilter() {
+            const filterInput = document.getElementById('filterInput');
+            const filterClear = document.getElementById('filterClear');
+            
+            filterInput.value = '';
+            filterClear.classList.remove('visible');
+            applyFilter('');
+        }
+
+        function applyFilter(query) {
+            const sections = document.querySelectorAll('.section');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+            
+            // Remove all previous highlights
+            document.querySelectorAll('.highlight').forEach(el => {
+                el.outerHTML = el.textContent;
+            });
+            
+            if (!query || query.trim().length === 0) {
+                // Show everything
+                sections.forEach(section => section.classList.remove('filtered-hidden'));
+                document.querySelectorAll('.org-card, .subsection').forEach(el => {
+                    el.classList.remove('filtered-hidden');
+                });
+                noResults.classList.remove('visible');
+                visibleCount = totalResourceCount;
+            } else {
+                const queryLower = query.toLowerCase().trim();
+                
+                sections.forEach(section => {
+                    let sectionHasMatch = false;
+                    const subsections = section.querySelectorAll('.subsection');
+                    const orgCards = section.querySelectorAll('.org-card');
+                    
+                    // Check section title
+                    const sectionTitle = section.querySelector('.section-title');
+                    if (fuzzyMatch(sectionTitle.textContent, queryLower)) {
+                        sectionHasMatch = true;
+                    }
+                    
+                    // Check subsections
+                    subsections.forEach(subsection => {
+                        let subsectionHasMatch = false;
+                        const subsectionTitle = subsection.querySelector('.subsection-title');
+                        const subsectionOrgCards = subsection.querySelectorAll('.org-card');
+                        
+                        if (fuzzyMatch(subsectionTitle.textContent, queryLower)) {
+                            subsectionHasMatch = true;
+                        }
+                        
+                        // Check org cards in subsection
+                        subsectionOrgCards.forEach(card => {
+                            const cardText = card.textContent;
+                            if (fuzzyMatch(cardText, queryLower)) {
+                                card.classList.remove('filtered-hidden');
+                                highlightText(card, queryLower);
+                                subsectionHasMatch = true;
+                                sectionHasMatch = true;
+                                visibleCount++;
+                            } else {
+                                card.classList.add('filtered-hidden');
+                            }
+                        });
+                        
+                        if (subsectionHasMatch) {
+                            subsection.classList.remove('filtered-hidden');
+                        } else {
+                            subsection.classList.add('filtered-hidden');
+                        }
+                    });
+                    
+                    // Check org cards directly in section (not in subsections)
+                    const directOrgCards = Array.from(orgCards).filter(card => {
+                        return !card.closest('.subsection');
+                    });
+                    
+                    directOrgCards.forEach(card => {
+                        const cardText = card.textContent;
+                        if (fuzzyMatch(cardText, queryLower)) {
+                            card.classList.remove('filtered-hidden');
+                            highlightText(card, queryLower);
+                            sectionHasMatch = true;
+                            visibleCount++;
+                        } else {
+                            card.classList.add('filtered-hidden');
+                        }
+                    });
+                    
+                    if (sectionHasMatch) {
+                        section.classList.remove('filtered-hidden');
+                    } else {
+                        section.classList.add('filtered-hidden');
+                    }
+                });
+                
+                // Show/hide no results message
+                if (visibleCount === 0) {
+                    noResults.classList.add('visible');
+                } else {
+                    noResults.classList.remove('visible');
+                }
+            }
+            
+            // Update count
+            document.getElementById('filterCount').textContent = visibleCount;
+        }
+
+        function fuzzyMatch(text, query) {
+            // Simple fuzzy matching: check if all query characters appear in order
+            const textLower = text.toLowerCase();
+            const queryChars = query.split('');
+            let textIndex = 0;
+            
+            for (let queryChar of queryChars) {
+                // Skip spaces in query
+                if (queryChar === ' ') continue;
+                
+                // Find next occurrence of query character
+                textIndex = textLower.indexOf(queryChar, textIndex);
+                if (textIndex === -1) {
+                    return false;
+                }
+                textIndex++;
+            }
+            
+            return true;
+        }
+
+        function highlightText(element, query) {
+            // Simple highlighting of matching terms
+            const words = query.split(/\s+/).filter(w => w.length > 2);
+            
+            words.forEach(word => {
+                const regex = new RegExp(`(${escapeRegex(word)})`, 'gi');
+                const walker = document.createTreeWalker(
+                    element,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                
+                const textNodes = [];
+                while (walker.nextNode()) {
+                    if (walker.currentNode.parentElement.tagName !== 'SCRIPT' && 
+                        walker.currentNode.parentElement.tagName !== 'STYLE') {
+                        textNodes.push(walker.currentNode);
+                    }
+                }
+                
+                textNodes.forEach(node => {
+                    const text = node.textContent;
+                    if (regex.test(text)) {
+                        const span = document.createElement('span');
+                        span.innerHTML = text.replace(regex, '<span class="highlight">$1</span>');
+                        node.replaceWith(...span.childNodes);
+                    }
+                });
+            });
+        }
+
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function countTotalResources(sections) {
+            let count = 0;
+            sections.forEach(section => {
+                count += countItems(section);
+            });
+            return count;
+        }
+
+        function organizeSections(paragraphs) {
+            const sections = [];
+            let currentSection = null;
+            let currentSubsection = null;
+            let currentOrg = null;
+            
+            for (let i = 0; i < paragraphs.length; i++) {
+                const para = paragraphs[i];
+                const {text, html} = para;
+                
+                const type = classifyParagraph(text, i, paragraphs);
+                
+                if (type === 'major-section') {
+                    // Save previous work
+                    if (currentOrg && currentSubsection) {
+                        currentSubsection.items.push(currentOrg);
+                    } else if (currentOrg && currentSection) {
+                        currentSection.items.push(currentOrg);
+                    }
+                    if (currentSubsection && currentSection) {
+                        currentSection.items.push(currentSubsection);
+                    }
+                    if (currentSection) {
+                        sections.push(currentSection);
+                    }
+                    
+                    // Start new major section
+                    currentSection = {
+                        title: text,
+                        type: 'major',
+                        items: []
+                    };
+                    currentSubsection = null;
+                    currentOrg = null;
+                    
+                } else if (type === 'city-subsection') {
+                    // Save previous org
+                    if (currentOrg && currentSubsection) {
+                        currentSubsection.items.push(currentOrg);
+                    } else if (currentOrg && currentSection) {
+                        currentSection.items.push(currentOrg);
+                    }
+                    if (currentSubsection && currentSection) {
+                        currentSection.items.push(currentSubsection);
+                    }
+                    
+                    // Create subsection
+                    currentSubsection = {
+                        title: text,
+                        type: 'subsection',
+                        items: []
+                    };
+                    currentOrg = null;
+                    
+                } else if (type === 'organization') {
+                    // Save previous org
+                    if (currentOrg && currentSubsection) {
+                        currentSubsection.items.push(currentOrg);
+                    } else if (currentOrg && currentSection) {
+                        currentSection.items.push(currentOrg);
+                    }
+                    
+                    // Start new org
+                    currentOrg = {
+                        title: text,
+                        type: 'org',
+                        details: []
+                    };
+                    
+                } else if (type === 'detail') {
+                    // Add to current org or section
+                    if (currentOrg) {
+                        currentOrg.details.push({text, html});
+                    } else if (currentSubsection) {
+                        currentSubsection.items.push({text, html, type: 'text'});
+                    } else if (currentSection) {
+                        currentSection.items.push({text, html, type: 'text'});
+                    }
+                }
+            }
+            
+            // Clean up final items
+            if (currentOrg && currentSubsection) {
+                currentSubsection.items.push(currentOrg);
+            } else if (currentOrg && currentSection) {
+                currentSection.items.push(currentOrg);
+            }
+            if (currentSubsection && currentSection) {
+                currentSection.items.push(currentSubsection);
+            }
+            if (currentSection) {
+                sections.push(currentSection);
+            }
+            
+            return sections;
+        }
+        
+        function classifyParagraph(text, index, allParagraphs) {
+            // Check for major section
+            if (isMajorSection(text)) {
+                return 'major-section';
+            }
+            
+            // Check for city/region subsection
+            if (isCitySubsection(text)) {
+                return 'city-subsection';
+            }
+            
+            // Check for organization name
+            if (isOrganization(text, index, allParagraphs)) {
+                return 'organization';
+            }
+            
+            // Everything else is detail
+            return 'detail';
+        }
+        
+        function isMajorSection(text) {
+            // All caps headers
+            if (text === text.toUpperCase() && text.length > 15 && text.length < 150) {
+                if (text.match(/^\d/) || text.match(/\d{3}[-.\s]?\d{3}/)) return false;
+                return true;
+            }
+            
+            // Common section patterns with flexible matching
+            const sectionPatterns = [
+                /^General Resources?/i,
+                /^Food.*Assistance.*Programs?/i,
+                /^Community.*Agriculture/i,
+                /^Food Banks?/i,
+                /^Distribution Sites/i,
+                /^Mobile.*Pantries/i,
+                /^Community.*Meals?/i,
+                /^Food Boxes?$/i,
+                /^Emergency.*Food/i,
+                /^(Local|Nashville).*Resources/i,
+                /^(Local|Nashville).*Restaurants/i,
+                /^Businesses.*Support/i,
+                /^Community.*Run.*Fridge/i,
+                /^Church.*Worship.*Pantries/i,
+                /^Non.*Profit.*Food/i,
+                /^Hot.*Meal/i,
+                /^Grocery.*Budget/i,
+                /^Discounted.*Groceries?/i,
+                /^Pet Food$/i,
+                /^Miscellaneous$/i,
+                /^Metro.*Resources/i
+            ];
+            
+            if (sectionPatterns.some(p => p.test(text)) && text.length < 100) {
+                // Make sure it's not a sentence
+                if (text.match(/\b(provides|offers|located|has|is are|was|were)\b/i)) return false;
+                return true;
+            }
+            
+            return false;
+        }
+        
+        function isCitySubsection(text) {
+            // Exact city/county names as standalone headers
+            const cities = [
+                'Nashville/Davidson County',
+                'Murfreesboro',
+                'Lebanon',
+                'Smyrna', 
+                'La Vergne',
+                'Lascassas',
+                'Rockvale',
+                'Portland',
+                'Gallatin',
+                'Hendersonville',
+                'Antioch',
+                'Hermitage',
+                'Goodlettsville',
+                'Sumner County',
+                'Davidson County',
+                'Rutherford County'
+            ];
+            
+            return cities.some(city => text.trim() === city);
+        }
+        
+        function isOrganization(text, index, allParagraphs) {
+            // Definite NOT an org
+            if (text.match(/^\d+\s/)) return false; // Address
+            if (text.match(/^[\(\)\d\s\-\.]+$/)) return false; // Phone only
+            if (text.match(/^\d{3}[-.\s]?\d{3}/)) return false; // Phone
+            if (text.match(/^\d{1,2}:\d{2}/)) return false; // Time
+            if (text.match(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i)) return false;
+            if (text.length < 5 || text.length > 200) return false;
+            
+            // Skip descriptive/instruction paragraphs
+            const nonOrgPatterns = [
+                /^(Senior|Emergency|General|Regular|Extra|Special)\s+(Hours?|Schedule|Info|Distribution)/i,
+                /^For additional/i,
+                /^Please/i,
+                /^Note:/i,
+                /^Call|Email|Visit|Contact|Bring/i,
+                /^\*/,
+                /^See map/i,
+                /^Located at/i,
+                /^Free food for/i,
+                /^No (registration|income|requirements|ID)/i,
+                /^You (do not|must|may|can)/i,
+                /^If you/i,
+                /^Open to all/i,
+                /^Distributions for/i
+            ];
+            
+            if (nonOrgPatterns.some(p => p.test(text))) return false;
+            
+            // Skip descriptive sentences with common verbs
+            const verbCount = (text.match(/\b(is|are|has|have|provides|offers|serves|helps|assists|will|can|may|should)\b/gi) || []).length;
+            if (verbCount >= 2 && text.split(' ').length > 10) return false;
+            
+            // Strong org indicators
+            const orgKeywords = [
+                'Church', 'Center', 'Ministry', 'Ministries', 'Bank', 'Pantry',
+                'Mission', 'Association', 'Community', 'Inc', 'LLC', 'Shop',
+                'Market', 'Rescue', 'Baptist', 'Methodist', 'Catholic',
+                'Presbyterian', 'Lutheran', 'Episcopal', 'United', 'Food',
+                'Kitchen', 'Outreach', 'Cares', 'Project', 'Network',
+                'BBQ', 'Deli', 'Restaurant', 'Cafe', 'Grill', 'Store',
+                'Fridge', 'Hope', 'Help', 'Love', 'Charity', 'Foundation',
+                'Table', 'Hands', 'Feed', 'Feast', 'Harvest'
+            ];
+            
+            const hasOrgKeyword = orgKeywords.some(keyword => 
+                new RegExp('\\b' + keyword + '\\b', 'i').test(text)
+            );
+            
+            // Has proper capitalization pattern
+            const hasProperCaps = text.match(/[A-Z][a-z]+/);
+            
+            // Not too long
+            const wordCount = text.split(/\s+/).length;
+            const reasonableLength = wordCount < 20;
+            
+            // Check if next paragraph looks like details (address, phone, hours)
+            const nextIsDetail = index + 1 < allParagraphs.length && 
+                isDetailParagraph(allParagraphs[index + 1].text);
+            
+            // Decision: needs proper caps + (org keyword OR next paragraph is details)
+            return hasProperCaps && reasonableLength && (hasOrgKeyword || nextIsDetail);
+        }
+        
+        function isDetailParagraph(text) {
+            // Quick check if text looks like org details
+            return text.match(/^\d+\s/) || // Address
+                   text.match(/^\d{3}[-.\s]?\d{3}/) || // Phone
+                   text.match(/\d{1,2}:\d{2}/) || // Hours
+                   text.match(/(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i) ||
+                   text.includes('@') ||
+                   text.match(/^(Open|Closed|Hours?:|Call|Email)/i);
+        }
+        
+        function countItems(section) {
+            let count = 0;
+            for (let item of section.items) {
+                if (item.type === 'org') {
+                    count++;
+                } else if (item.type === 'subsection') {
+                    count += item.items.filter(i => i.type === 'org').length;
+                }
+            }
+            return count;
+        }
+        
+        function generateId(title) {
+            return title
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .substring(0, 50);
+        }
+        
+        function buildSection(section) {
+            const sectionId = generateId(section.title);
+            let html = '<div class="section" id="' + sectionId + '" data-section="true">';
+            html += '<h2 class="section-title">' + escapeHtml(section.title) + '</h2>';
+            html += '<div class="section-content">';
+            
+            for (let item of section.items) {
+                if (item.type === 'subsection') {
+                    // City/region subsection
+                    html += '<div class="subsection" data-subsection="true">';
+                    html += '<h3 class="subsection-title">' + escapeHtml(item.title) + '</h3>';
+                    
+                    for (let subItem of item.items) {
+                        if (subItem.type === 'org') {
+                            html += buildOrgCard(subItem);
+                        } else if (subItem.type === 'text') {
+                            html += formatDetail(subItem);
+                        }
+                    }
+                    
+                    html += '</div>';
+                } else if (item.type === 'org') {
+                    // Organization card
+                    html += buildOrgCard(item);
+                } else if (item.type === 'text') {
+                    // Direct text item
+                    html += formatDetail(item);
+                }
+            }
+            
+            html += '</div></div>';
+            return html;
+        }
+        
+        function buildOrgCard(org) {
+            let html = '<div class="org-card" data-org="true">';
+            
+            // Check if org title contains an address and make it clickable
+            let orgTitle = escapeHtml(org.title);
+            const hasAddressOrPhone = org.title.match(/\d+\s+[A-Z]/) || org.title.match(/\d{3}[-.\s]?\d{3}/);
+            if (hasAddressOrPhone) {
+                orgTitle = enhanceAllContactInfo(orgTitle, org.title);
+            }
+            
+            html += '<h3 class="org-title">' + orgTitle + '</h3>';
+            html += '<div class="org-details">';
+            
+            for (let detail of org.details) {
+                html += formatDetail(detail);
+            }
+            
+            html += '</div></div>';
+            return html;
+        }
+        
+        function formatDetail(detail) {
+            let {text, html} = detail;
+            
+            // Detect if this is a standalone paragraph of a specific type
+            const isStandaloneAddress = text.match(/^\d+\s+[A-Z]/) && 
+                   text.match(/\b(Street|Road|Ave|Avenue|Pike|Blvd|Boulevard|Lane|Dr|Drive|Rd|St)\b/i) &&
+                   text.includes('TN');
+            
+            const isStandalonePhone = text.match(/^[\(\)\d\s\-\.]+$/) && 
+                   text.replace(/\D/g, '').length >= 10 &&
+                   text.length < 25;
+            
+            const isStandaloneEmail = text.includes('@') && 
+                   text.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/) &&
+                   text.length < 60;
+            
+            // Format based on content type
+            if (isStandaloneAddress) {
+                const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(text);
+                return '<p class="address"><a href="' + mapsUrl + '" target="_blank">📍 ' + html + '</a></p>';
+            } else if (isStandalonePhone) {
+                const phoneClean = text.replace(/\D/g, '');
+                return '<p class="phone"><a href="tel:+1' + phoneClean + '">📞 ' + html + '</a></p>';
+            } else if (isStandaloneEmail) {
+                if (!html.includes('href')) {
+                    html = '<a href="mailto:' + text + '">' + html + '</a>';
+                }
+                return '<p class="email">✉️ ' + html + '</p>';
+            } else if (isHours(text)) {
+                html = enhanceAllContactInfo(html, text);
+                return '<p class="hours">🕒 ' + html + '</p>';
+            } else if (isRequirement(text)) {
+                html = enhanceAllContactInfo(html, text);
+                return '<p class="requirement">⚠️ ' + html + '</p>';
+            } else {
+                // Regular paragraph - enhance ALL contact info within it
+                html = enhanceAllContactInfo(html, text);
+                return '<p>' + html + '</p>';
+            }
+        }
+        
+        function enhanceAllContactInfo(html, text) {
+            // ENHANCEMENT: This function finds and makes clickable ALL contact information
+            // throughout the entire document, whether standalone or embedded in text:
+            // - Phone numbers → tel: links (works on mobile)
+            // - Email addresses → mailto: links  
+            // - Street addresses → Google Maps links
+            
+            // Make ALL inline phone numbers clickable (various formats)
+            // Format: (615) 555-1234 or 615-555-1234 or 615.555.1234 or 615 555 1234
+            html = html.replace(/\b(\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4})\b/g, (match) => {
+                // Skip if already in a link
+                if (match.includes('href')) return match;
+                const cleanPhone = match.replace(/\D/g, '');
+                if (cleanPhone.length === 10) {
+                    return '<a href="tel:+1' + cleanPhone + '">' + match + '</a>';
+                }
+                return match;
+            });
+            
+            // Make ALL inline emails clickable
+            if (!html.includes('mailto:')) {
+                html = html.replace(/\b([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/g, (match) => {
+                    // Skip if already in a link
+                    if (html.indexOf('href="mailto:' + match) >= 0 || html.indexOf('>' + match + '</a>') >= 0) {
+                        return match;
+                    }
+                    return '<a href="mailto:' + match + '">' + match + '</a>';
+                });
+            }
+            
+            // Make ALL inline addresses clickable
+            // Pattern: number + street name + TN
+            const addressPattern = /\b(\d+\s+[A-Z][a-zA-Z\s\.]+(?:Street|St|Road|Rd|Avenue|Ave|Pike|Boulevard|Blvd|Lane|Ln|Drive|Dr|Way|Court|Ct|Place|Pl|Circle|Cir|Parkway|Pkwy)[,\s]+[A-Za-z\s]+,?\s*TN\s*\d{5}(?:-\d{4})?)\b/gi;
+            
+            html = html.replace(addressPattern, (match) => {
+                // Skip if already in a link
+                if (match.includes('href')) return match;
+                const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(match.trim());
+                return '<a href="' + mapsUrl + '" target="_blank" class="inline-address">' + match + '</a>';
+            });
+            
+            // Also catch shorter address format without full formatting
+            // Like "711 S. 7th Street, Nashville, TN 37206"
+            const shortAddressPattern = /(\d+\s+(?:[NSEW]\.?\s+)?[A-Z0-9][a-zA-Z0-9\s\.]+(?:Street|St|Road|Rd|Avenue|Ave|Pike|Boulevard|Blvd|Lane|Ln|Drive|Dr)[,\s]+[A-Za-z\s]+,\s*TN\s*\d{5})/gi;
+            
+            html = html.replace(shortAddressPattern, (match) => {
+                // Skip if already in a link
+                if (match.includes('href') || match.includes('class="inline-address"')) return match;
+                const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(match.trim());
+                return '<a href="' + mapsUrl + '" target="_blank" class="inline-address">' + match + '</a>';
+            });
+            
+            return html;
+        }
+        
+        function isAddress(text) {
+            return text.match(/^\d+\s+[A-Z]/) && 
+                   text.match(/\b(Street|Road|Ave|Avenue|Pike|Blvd|Boulevard|Lane|Dr|Drive|Rd|St)\b/i) &&
+                   text.includes('TN');
+        }
+        
+        function isPhone(text) {
+            return text.match(/^[\(\)\d\s\-\.]+$/) && 
+                   text.replace(/\D/g, '').length >= 10 &&
+                   text.length < 25;
+        }
+        
+        function isEmail(text) {
+            return text.includes('@') && text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/) && text.length < 60 && !text.includes('http');
+        }
+        
+        function isHours(text) {
+            return (text.match(/\d{1,2}:\d{2}/) || 
+                    text.match(/(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i)) && 
+                   text.length < 200;
+        }
+        
+        function isRequirement(text) {
+            return text.toLowerCase().includes('id required') || 
+                   text.toLowerCase().includes('proof of') || 
+                   text.toLowerCase().includes('must have') ||
+                   text.toLowerCase().includes('registration required') ||
+                   text.toLowerCase().includes('dd214') ||
+                   text.toLowerCase().includes('income eligibility');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleBackToTop() {
+            const backToTop = document.querySelector('.back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        }
+
+        loadContent();
+    </script>
+</body>
+</html>

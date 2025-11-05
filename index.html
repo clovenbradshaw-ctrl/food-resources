@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nashville Food Resources</title>
+    <link rel="icon" type="image/png" href="https://storage.googleapis.com/intelechia-content/im/food_icon.png">
+    <link rel="apple-touch-icon" href="https://storage.googleapis.com/intelechia-content/im/food_icon.png">
     <style>
         * {
             margin: 0;
@@ -206,6 +208,14 @@
             margin-bottom: 48px;
         }
 
+        .header-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            display: block;
+            animation: fadeIn 0.8s ease-out;
+        }
+
         h1 {
             font-size: 3.5em;
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #3b82f6 100%);
@@ -223,6 +233,33 @@
             max-width: 700px;
             margin: 0 auto;
             line-height: 1.8;
+        }
+
+        .source-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .source-link:hover {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border-color: #c7d2fe;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .source-link svg {
+            width: 20px;
+            height: 20px;
         }
 
         .section {
@@ -362,13 +399,24 @@
         }
 
         @media (max-width: 768px) {
+            .header-icon {
+                width: 90px;
+                height: 90px;
+                margin-bottom: 20px;
+            }
+
             h1 {
                 font-size: 2.5em;
             }
 
             .intro {
                 font-size: 1em;
-                padding: 20px;
+                padding: 0 20px;
+            }
+
+            .source-link {
+                font-size: 0.9em;
+                padding: 10px 20px;
             }
 
             .filter-container {
@@ -528,7 +576,7 @@
                 totalResourceCount = countTotalResources(allSections);
                 
                 // Build HTML
-                let contentHTML = '<header><h1>Nashville Area Food Resources</h1><p class="intro">Community-compiled resource guide for food assistance in Nashville & Middle Tennessee</p></header>';
+                let contentHTML = '<header><img src="https://storage.googleapis.com/intelechia-content/im/food_icon.png" alt="Nashville Food Resources Icon" class="header-icon"><h1>Nashville Area Food Resources</h1><p class="intro">Community-compiled resource guide for food assistance in Nashville & Middle Tennessee</p><a href="' + docUrl + '" target="_blank" class="source-link" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>View Original Google Doc</a></header>';
                 
                 // Generate Filter System
                 contentHTML += buildFilterSystem();
